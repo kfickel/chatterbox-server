@@ -2,6 +2,7 @@
 var http = require('http');
 // var _ = require('../node_modules/underscore');
 var handleRequest = require('./request-handler.js');
+var checkIncludes = require('./stringincludes.js');
 
 
 // Every server needs to listen on a port with a unique number. The

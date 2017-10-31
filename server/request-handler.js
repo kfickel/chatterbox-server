@@ -18,7 +18,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-var messages = {results: [{}]};
+var checkIncludes = require('./stringincludes.js');
+var messages = {results: []};
 
 var requestHandler = function(request, response) {
 
@@ -37,13 +38,18 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  console.log('Serving request type ' + request.method + ' for url ' + request.url );
 
   // The outgoing status.
   // var statusCode = 200;
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
+  if (!checkIncludes.strIncludes(request.url)) {
+    var statusCode = 404; 
+    response.writeHead(statusCode, headers);
+    response.end(); 
+  }
 
 
   // Tell the client we are sending them plain text.
@@ -59,14 +65,15 @@ var requestHandler = function(request, response) {
   if (request.method === 'POST') {
     var statusCode = 201;
     response.writeHead(statusCode, headers);
-    console.log('User is posting, so want to store the data into a data Structure');
+    //console.log(request.uri, " uri ");
     // console.log(request);
-    var body = [];
+    var body = '';
     request.on('data', (chunk) => {
-      body.push(chunk);
-    }).on('end', () => {
-      body = Buffer.concat(body);
-      messages.results.push(JSON.parse(body));
+      body += chunk; 
+    });
+    request.on('end', () => {
+      // body = Buffer.concat(body);
+      messages.results.unshift(JSON.parse(body));
       console.log('messagesresults ', messages.results);
       // response.end(JSON.stringify(messages));
     });
