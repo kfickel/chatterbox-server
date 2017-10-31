@@ -18,9 +18,11 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var messages = {results: [{}]};
+
 var requestHandler = function(request, response) {
 
-  var Data = {results: [{username: 'spongebob', text: 'hello', roomname: 'lobby'}]};
+  // var messages = {results: [{username: 'spongebob', text: 'hello', roomname: 'lobby'}]};
   // Request and Response come from node's http module.
   //
   // They include information about bothf the incoming request, such as
@@ -38,7 +40,7 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // The outgoing status.
-  var statusCode = 200;
+  // var statusCode = 200;
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -52,19 +54,35 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+  // response.writeHead(statusCode, headers);
 
   if (request.method === 'POST') {
+    var statusCode = 201;
+    response.writeHead(statusCode, headers);
     console.log('User is posting, so want to store the data into a data Structure');
-    console.log(request);
-    response.end('post');
+    // console.log(request);
+    var body = [];
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => {
+      body = Buffer.concat(body);
+      messages.results.push(JSON.parse(body));
+      console.log('messagesresults ', messages.results);
+      // response.end(JSON.stringify(messages));
+    });
+    console.log('messagesresults outside ', messages.results);
+    response.end('{}');
   }
   if (request.method === 'GET') {
-    console.log('User is getting information, want to share data structure ');
-    response.end(JSON.stringify(Data));
+    var statusCode = 200;
+    response.writeHead(statusCode, headers);
+    console.log('User is getting information, want to share messages structure ');
+    response.end(JSON.stringify(messages));
   }
   if (request.method === 'OPTIONS') {
-    response.end(JSON.stringify(Data));
+    var statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(messages));
   
   }
   // Make sure to always call response.end() - Node may not send
