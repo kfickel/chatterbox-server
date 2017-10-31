@@ -19,9 +19,11 @@ var defaultCorsHeaders = {
 };
 
 var requestHandler = function(request, response) {
+
+  var Data = {results: [{username: 'spongebob', text: 'hello', roomname: 'lobby'}]};
   // Request and Response come from node's http module.
   //
-  // They include information about both the incoming request, such as
+  // They include information about bothf the incoming request, such as
   // headers and URL, and about the outgoing response, such as its status
   // and content.
   //
@@ -33,7 +35,7 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.server);
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // The outgoing status.
   var statusCode = 200;
@@ -41,24 +43,37 @@ var requestHandler = function(request, response) {
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
+
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
 
+  if (request.method === 'POST') {
+    console.log('User is posting, so want to store the data into a data Structure');
+    console.log(request);
+    response.end('post');
+  }
+  if (request.method === 'GET') {
+    console.log('User is getting information, want to share data structure ');
+    response.end(JSON.stringify(Data));
+  }
+  if (request.method === 'OPTIONS') {
+    response.end(JSON.stringify(Data));
+  
+  }
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
   // up in the browser.
-  //
+  // response.write(JSON.stringify(Data));
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
 };
  
 exports.requestHandler = requestHandler;
