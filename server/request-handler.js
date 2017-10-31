@@ -74,16 +74,16 @@ var requestHandler = function(request, response) {
     request.on('end', () => {
       // body = Buffer.concat(body);
       messages.results.unshift(JSON.parse(body));
-      console.log('messagesresults ', messages.results);
+      //console.log('messagesresults ', messages.results);
       // response.end(JSON.stringify(messages));
     });
-    console.log('messagesresults outside ', messages.results);
+    //console.log('messagesresults outside ', messages.results);
     response.end('{}');
   }
   if (request.method === 'GET') {
     var statusCode = 200;
     response.writeHead(statusCode, headers);
-    console.log('User is getting information, want to share messages structure ');
+    //console.log('User is getting information, want to share messages structure ');
     response.end(JSON.stringify(messages));
   }
   if (request.method === 'OPTIONS') {

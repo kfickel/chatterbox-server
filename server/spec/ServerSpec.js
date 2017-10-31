@@ -116,4 +116,69 @@ describe('Node Server Request Listener Function', function() {
       });
   });
 
+  it('Should create a new room', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'Do my bidding!',
+      roomname: 'helloWorld'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(messages[0].username).to.equal('Jono');
+    expect(messages[0].text).to.equal('Do my bidding!');
+    expect(messages[0].roomname).to.equal('helloWorld');
+    expect(res._ended).to.equal(true);
+
+  });
+  it('Should create multiple messages', function() {
+    var stubMsg = {
+      username: 'Ron',
+      text: 'No touching of the face or hair',
+      roomname: 'helloWorld'
+    };
+    var stubMsgTwo = {
+      username: 'Ron',
+      text: 'I am a glass case of emotion', 
+      roomname: 'helloWorld'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+    var reqOne = new stubs.request('/classes/messages', 'POST', stubMsgTwo);
+    var resOne = new stubs.response(); 
+    handler.requestHandler(req, res);
+    handler.requestHandler(reqOne, resOne); 
+
+    expect(res._responseCode).to.equal(201);
+
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(messages[0].username).to.equal('Ron');
+    expect(messages[0].text).to.equal('I am a glass case of emotion');
+    expect(messages[0].roomname).to.equal('helloWorld');
+    expect(messages[1].username).to.equal('Ron');
+    expect(messages[1].text).to.equal('No touching of the face or hair'); 
+    expect(messages[1].roomname).to.equal('helloWorld');
+    expect(res._ended).to.equal(true);
+
+  });
+
 });

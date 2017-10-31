@@ -73,5 +73,66 @@ describe('server', function() {
     });
   });
 
+  
+  it('should respond with messages with a new room', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'Do my bidding!',
+        roomname: 'helloWorld'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      // Now if we request the log, that message we posted should be there:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[0].username).to.equal('Jono');
+        expect(messages[0].message).to.equal('Do my bidding!');
+        expect(messages[0].roomname).to.equal('helloWorld');
+        done();
+      });
+    });
+  });
+  
+  it('should respond with multiple messages with a new room', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Ron Burgundy',
+        message: 'I am Ron Burgundy',
+        roomname: 'helloWorld'}
+    };
+    var requestParamsTwo = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Ron Burgundy',
+        message: 'I am Ron Burgundy?',
+        roomname: 'helloWorld'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      // Now if we request the log, that message we posted should be there:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[1].username).to.equal('Ron Burgundy');
+        expect(messages[1].message).to.equal('I am Ron Burgundy');
+        expect(messages[1].roomname).to.equal('helloWorld');
+      });
+    });
+
+    request(requestParamsTwo, function(error, response, body) {
+      // Now if we request the log, that message we posted should be there:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[0].username).to.equal('Ron Burgundy');
+        expect(messages[0].message).to.equal('I am Ron Burgundy?');
+        expect(messages[0].roomname).to.equal('helloWorld');
+        done();
+      });
+    
+    });
+  });
+
 
 });
